@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>xueli</title>
+	<style>
+	*{
+		padding: 0;
+		margin:0;
+	}
+	div{
+		display:block;
+	}
+	ul,li{
+		list-style: none;
+		text-align: center; 
+	}
+	.box{
+		width:1200px;
+		height:382px;
+		border:none;
+		margin:1px auto;
+		position: relative;
+		overflow: hidden;
+	}
+	.slider{
+		width:8400px;
+		position: absolute;
+		left:-1200px;
+	}
+	.slide{
+		width:1200px;
+		position: hidden;
+		float:left;
+	}
+	.box>span{
+		display: block;
+		width:30px;
+		height:50px;
+		text-align: center;
+		cursor: pointer;
+		color:;
+		top:175px;
+		line-height: 50px;
+		background: rgb(255,0,0);
+		font-size: 30px;
+		position: absolute;
+		opacity: 0; 
+	}
+	#left{
+		left:30px;
+	}
+	#right{
+		right:30px;
+	}
+	.nav{
+		position: absolute;
+		left: 500px;
+		bottom:20px;
+	}
+	.nav>li{
+		float:left;
+		width:20px;
+		height:20px;
+		background: #ccc;
+		cursor: :pointer;
+		margin:0 10px;
+		border-radius: 100%;
+	}
+	.nav .active{
+		background:red;
+	}
+	/*.warn{
+		background-color: rgb(176,176,176);
+		width:1200px;
+		height:25px;
+	}*/
+	.warning{
+		height:25px;
+		width:1px auto;
+		background-color: rgb(176,176,176);
+		position:relative;
+	}
+	.warnimg{
+		margin-left:80px;
+		top:-3px;
+		margin-top: 1px;
+		position: relative;
+		display:inline-block;
+	}
+	.warn{
+		height:25px;
+		width:900px;
+		overflow: hidden;
+		color:red;
+		position:relative;
+		display:inline-block;
+	}
+	#warn1{
+		height:25px;
+		margin-top: 4px;
+		font-size: 14px;
+		right:-900px;
+		position:relative;
+	}
+	</style>
+</head>
+<body>
+	<div class="all">
+		<div class="warning">
+			<div class="warnimg"><img src="images/a15.png"></div>
+			<div class="warn"> 
+			    <div id="warn1">
+			   		<p>[温馨提示]最近有不少不法分子在网络上骗人，请大家注意！！！</p>
+			  	</div> 
+			</div> 
+		</div>
+		<div class="box" id="box">
+			<div class="slider" id="slider">
+				<div class="slide"><img src="images/b5.png"></div>
+				<div class="slide"><img src="images/b1.png"></div>
+				<div class="slide"><img src="images/b2.png"></div>
+				<div class="slide"><img src="images/b3.png"></div>
+				<div class="slide"><img src="images/b4.png"></div>
+				<div class="slide"><img src="images/b5.png"></div>
+				<div class="slide"><img src="images/b1.png"></div>
+			</div>
+			<span id="left"><</span>
+			<span id="right">></span>
+			<ul class="nav" id="nav">
+				<li class="active"> 1</li>
+				<li>2</li>
+				<li>3</li>
+				<li>4</li>
+				<li>5</li>
+			</ul>
+		</div>
+	</div>
+	<script>
+		var box = document.getElementById('box');
+		var oNavlist = document.getElementById('nav').children;
+		var slider = document.getElementById('slider');
+		var left = document.getElementById('left');
+		var right = document.getElementById('right');
+		var index = 1;
+		var timer;
+		var isMoving = false;
+		var warn1 =document.getElementById('warn1');
+
+
+		function getStyle(obj, attr){
+			if(obj.currentStyle){
+				return obj.currentStyle[attr];
+			} else {
+				return getComputedStyle(obj, null)[attr];
+			}
+		}
+		function animate(obj,json,callback){
+			clearInterval(obj.timer);
+			obj.timer = setInterval(function(){
+				var isStop = true;
+				for(var attr in json){
+					var now = 0;
+					if(attr == 'opacity'){
+						now = parseInt(getStyle(obj,attr)*100);
+					}else{
+						now = parseInt(getStyle(obj,attr));
+					}
+					var speed = (json[attr] - now) / 8;
+					speed = speed>0?Math.ceil(speed):Math.floor(speed);
+					var cur = now + speed;
+					if(attr == 'opacity'){
+						obj.style[attr] = cur / 100;
+					}else{
+						obj.style[attr] = cur + 'px';
+					}
+					if(json[attr] !== cur){
+						isStop = false;
+					}
+				}
+				if(isStop){
+					clearInterval(obj.timer);
+					callback&&callback();
+				}
+			}, 30)
+		}
+
+		function warn2(){
+			var a =parseInt(getStyle(warn1,'right'));
+			warn1.style.right = a + 3 +'px';
+			if(a+50>=500){
+				warn1.style.right = -900+'px';
+			}
+		}
+		setInterval(warn2,50);
+
+		//	自动轮播
+		function next(){
+			index++;
+			navChange();
+			animate(slider,{left:-1200*index},function(){
+				if(index == 6){
+					slider.style.left="-1200px";
+					index=1;
+				}
+			});
+		}
+		function prev(){
+			index--;
+			navChange();
+			animate(slider,{left:-1200*index},function(){
+				if(index == 0){
+					slider.style.left="-6000px";
+					index=5;
+				}
+			});
+		}
+		var timer = setInterval(next,2000);
+
+		box.onmouseover = function(){
+			animate(left,{opacity:50});
+			animate (right,{opacity:50});
+			clearInterval(timer);
+		}
+		box.onmouseout = function(){
+			animate(left,{opacity:0});
+			animate (right,{opacity:0});
+			timer = setInterval(next,2000);
+		}
+
+		right.onclick = next;
+		left.onclick = prev;
+
+		//小按钮点击事件
+		for(var i=0;i<oNavlist.length;i++){
+			oNavlist[i].idx = i;
+			oNavlist[i].onclick = function(){
+				index=this.idx+1;
+				navChange();
+				animate(slider,{left:-1200*index});
+			}
+		}
+		//小按钮背景切换
+		function navChange(){
+			for(var i=0;i<oNavlist.length;i++){
+				oNavlist[i].className='';
+			}
+			if(index==6){
+				oNavlist[0].className = 'active';
+			}else if(index==0){
+				oNavlist[4].className = 'active';
+			}else{
+				oNavlist[index-1].className = 'active';
+			}
+		}
+	</script>
+	
+</body>
+</html>
